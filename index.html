@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Evaluación de competencias durante periodo de prueba</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #004481;
+      --primary-dark: #03325d;
+      --secondary: #f4f7fb;
+      --text: #24303f;
+      --border: #d9e2ec;
+      --success: #1f8f4d;
+      --warning: #d68b00;
+      --danger: #c0392b;
+      --muted: #6b7785;
+      --white: #ffffff;
+      --soft: #0f8a9d;
+      --critical-bg: #fff3cd;
+      --critical-text: #735300;
+      --tecnica-bg: #eaf3fb;
+      --calidad-bg: #edf8f2;
+      --actitud-bg: #f8eef9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text);
+      background: #eaf0f6;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(8, 42, 79, 0.12);
+      padding: 28px;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: var(--primary);
+      font-size: 1.82rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin: 8px 0 24px;
+      font-size: 0.98rem;
+    }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 0 0 22px;
+      background: var(--secondary);
+    }
+
+    legend {
+      padding: 0 10px;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .form-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    label {
+      font-size: 0.92rem;
+      font-weight: 650;
+      margin-bottom: 6px;
+      color: #334e68;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #c8d4e3;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid rgba(0, 68, 129, 0.14);
+      border-color: var(--primary);
+    }
+
+    .hint {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .logo-wrapper {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .logo-box {
+      background: white;
+      border: 1px dashed #aec3d8;
+      border-radius: 12px;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 10px;
+    }
+
+    .logo-box img {
+      max-width: 100%;
+      max-height: 118px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .logo-placeholder {
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    .scale-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .scale-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      min-height: 112px;
+    }
+
+    .scale-card strong {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .metric-card .label {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-card .value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .mini-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .mini-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .mini-card .title {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .mini-card .score {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1080px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e4ebf2;
+      padding: 10px;
+      vertical-align: top;
+      background: #fff;
+    }
+
+    th {
+      background: #dfeaf4;
+      color: #17324d;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    .competencia-titulo {
+      font-weight: 700;
+      color: #1f3f63;
+      margin-bottom: 4px;
+    }
+
+    .competencia-detalle {
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.35;
+      margin-top: 6px;
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .chip-tecnica {
+      background: var(--tecnica-bg);
+      color: #1f4d74;
+    }
+
+    .chip-calidad {
+      background: var(--calidad-bg);
+      color: #22633d;
+    }
+
+    .chip-actitud {
+      background: var(--actitud-bg);
+      color: #6e3c84;
+    }
+
+    .badge-critical {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 8px;
+      font-size: 0.76rem;
+      border-radius: 999px;
+      background: var(--critical-bg);
+      color: var(--critical-text);
+      font-weight: 700;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary, .btn-secondary, .btn-danger {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+
+    .btn-primary:hover, .btn-secondary:hover, .btn-danger:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-full {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.04rem;
+    }
+
+    .analysis-box {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      line-height: 1.55;
+      margin-top: 16px;
+    }
+
+    .analysis-title {
+      color: var(--primary);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .recommendations-list {
+      margin: 8px 0 0 18px;
+      padding: 0;
+      line-height: 1.5;
+    }
+
+    .chart-wrapper {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .chart-title {
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    #chartCanvas {
+      width: 100%;
+      max-width: 100%;
+      height: 360px;
+      border: 1px solid #edf2f7;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .firmas-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .firma-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .firma-pad {
+      width: 100%;
+      height: 180px;
+      border: 2px dashed #98b2ca;
+      border-radius: 12px;
+      background: #fff;
+      touch-action: none;
+      cursor: crosshair;
+      display: block;
+    }
+
+    .firma-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .firma-note {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .form-grid,
+      .form-grid-3,
+      .form-grid-4,
+      .summary-grid,
+      .mini-metrics,
+      .firmas-grid,
+      .logo-wrapper,
+      .scale-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>EVALUACIÓN DE COMPETENCIAS DURANTE PERIODO DE PRUEBA</h1>
+    <div class="subtitle">
+      Formato web para evaluación técnica, documental y actitudinal de asistentes de fabricación y logística.
+    </div>
+
+    <form id="formEvaluacion">
+      <fieldset>
+        <legend>Configuración del documento</legend>
+        <div class="logo-wrapper">
+          <div class="logo-box">
+            <img id="logoPreview" alt="Logo cargado" />
+            <div id="logoPlaceholder" class="logo-placeholder">
+              Se cargará automáticamente <strong>logo.png.jpg</strong><br>
+              desde la misma carpeta del HTML
+            </div>
+          </div>
+
+          <div class="form-grid-4">
+            <div class="form-group full-width">
+              <label for="logoInput">Reemplazar logo manualmente (opcional)</label>
+              <input type="file" id="logoInput" accept="image/*" />
+              <div class="hint">Si existe <strong>logo.png.jpg</strong> en la misma carpeta, se usará automáticamente en pantalla y en el PDF.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="empresa">Empresa</label>
+              <input type="text" id="empresa" value="Meraky Soluciones a la Medida" />
+            </div>
+
+            <div class="form-group">
+              <label for="proceso">Proceso / Área documental</label>
+              <input type="text" id="proceso" value="Gestión del talento humano" />
+            </div>
+
+            <div class="form-group">
+              <label for="codigoDocumento">Código</label>
+              <input type="text" id="codigoDocumento" value="SG-RE-012" readonly />
+              <div class="hint">Dato controlado del documento. No editable.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="versionDocumento">Versión</label>
+              <input type="text" id="versionDocumento" value="2" readonly />
+              <div class="hint">Dato controlado del documento. No editable.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="fechaActualizacion">Fecha de actualización</label>
+              <input type="text" id="fechaActualizacion" value="08/04/2026" readonly />
+              <div class="hint">Dato controlado del documento. No editable.</div>
+            </div>
+
+            <div class="form-group">
+              <label for="copiaControlada">Copia controlada</label>
+              <select id="copiaControlada">
+                <option value="Sí" selected>Sí</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="elaboradoPor">Elaborado por</label>
+              <input type="text" id="elaboradoPor" value="Director de Calidad" />
+            </div>
+
+            <div class="form-group">
+              <label for="revisadoPor">Revisado por</label>
+              <input type="text" id="revisadoPor" value="Directora Técnica" />
+            </div>
+
+            <div class="form-group">
+              <label for="aprobadoPor">Aprobado por</label>
+              <input type="text" id="aprobadoPor" value="Gerencia General" />
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Datos generales de la evaluación</legend>
+        <div class="form-grid-4">
+          <div class="form-group">
+            <label for="fechaEvaluacion">Fecha de evaluación</label>
+            <input type="date" id="fechaEvaluacion" required />
+          </div>
+
+          <div class="form-group">
+            <label for="fechaIngreso">Fecha de ingreso del trabajador</label>
+            <input type="date" id="fechaIngreso" required />
+          </div>
+
+          <div class="form-group">
+            <label for="periodoEvaluado">Periodo evaluado</label>
+            <input type="text" id="periodoEvaluado" value="2 meses de periodo de prueba" required />
+          </div>
+
+          <div class="form-group">
+            <label for="tipoEvaluacion">Tipo de evaluación</label>
+            <input type="text" id="tipoEvaluacion" value="Seguimiento de periodo de prueba" required />
+          </div>
+
+          <div class="form-group">
+            <label for="nombreTrabajador">Nombre del trabajador</label>
+            <input type="text" id="nombreTrabajador" required />
+          </div>
+
+          <div class="form-group">
+            <label for="documentoTrabajador">Documento del trabajador</label>
+            <input type="text" id="documentoTrabajador" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cargoTrabajador">Cargo</label>
+            <input type="text" id="cargoTrabajador" value="Asistente de fabricación y logística" required />
+          </div>
+
+          <div class="form-group">
+            <label for="areaTrabajador">Área</label>
+            <input type="text" id="areaTrabajador" value="Fabricación y logística" required />
+          </div>
+
+          <div class="form-group">
+            <label for="nombreJefe">Nombre del jefe directo</label>
+            <input type="text" id="nombreJefe" required />
+          </div>
+
+          <div class="form-group">
+            <label for="cargoJefe">Cargo del jefe directo</label>
+            <input type="text" id="cargoJefe" value="Jefe directo" required />
+          </div>
+
+          <div class="form-group">
+            <label for="decisionJefe">Concepto del evaluador</label>
+            <select id="decisionJefe">
+              <option value="">Selecciona una opción</option>
+              <option value="Aprobar continuidad">Aprobar continuidad</option>
+              <option value="Aprobar continuidad con plan de mejora">Aprobar continuidad con plan de mejora</option>
+              <option value="Ampliar seguimiento">Ampliar seguimiento</option>
+              <option value="No aprobar continuidad">No aprobar continuidad</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="proximaRevision">Próxima revisión sugerida</label>
+            <input type="text" id="proximaRevision" value="30 días" />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="objetivoEvaluacion">Objetivo de la evaluación</label>
+            <textarea id="objetivoEvaluacion">Evaluar el nivel de dominio técnico, documental y actitudinal alcanzado por el colaborador durante su periodo de prueba, para soportar la decisión de continuidad y definir reentrenamientos, acciones de seguimiento y control acorde con el proceso y la trazabilidad requerida por el Sistema de Gestión de Calidad.</textarea>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Escala de calificación</legend>
+        <div class="scale-grid">
+          <div class="scale-card"><strong>1</strong>No maneja el proceso o presenta fallas críticas.</div>
+          <div class="scale-card"><strong>2</strong>Requiere acompañamiento constante y comete errores frecuentes.</div>
+          <div class="scale-card"><strong>3</strong>Ejecuta con apoyo parcial o presenta inconsistencias.</div>
+          <div class="scale-card"><strong>4</strong>Maneja bien la actividad con poca supervisión.</div>
+          <div class="scale-card"><strong>5</strong>Lo maneja perfectamente, con seguridad y consistencia.</div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Evaluación por competencias</legend>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th style="width: 130px;">Categoría</th>
+                <th>Competencia</th>
+                <th style="width: 130px;">Calificación</th>
+                <th style="width: 300px;">Observaciones del jefe</th>
+                <th style="width: 88px;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyCompetencias"></tbody>
+          </table>
+        </div>
+
+        <div class="row-actions">
+          <button type="button" id="btnAgregarCompetencia" class="btn-secondary">+ Añadir competencia adicional</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Concepto general del jefe</legend>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fortalezas">Fortalezas observadas</label>
+            <textarea id="fortalezas" placeholder="Describe las fortalezas principales del trabajador."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="aspectosMejorar">Aspectos por mejorar</label>
+            <textarea id="aspectosMejorar" placeholder="Describe los puntos que requieren refuerzo."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="comentariosFinales">Comentarios finales</label>
+            <textarea id="comentariosFinales" placeholder="Comentario final del jefe directo."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="planAccionManual">Plan de acción complementario</label>
+            <textarea id="planAccionManual" placeholder="Acciones manuales, responsables o condiciones de seguimiento."></textarea>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Resumen automático</legend>
+        <div class="summary-grid">
+          <div class="metric-card">
+            <div class="label">Promedio general</div>
+            <div class="value" id="metricPromedio">0.00 / 5</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="label">Porcentaje de cumplimiento</div>
+            <div class="value" id="metricPorcentaje">0%</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="label">Nivel de resultado</div>
+            <div class="value" id="metricNivel">Pendiente</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="label">Competencias en riesgo (&lt; 3)</div>
+            <div class="value" id="metricBajas">0</div>
+          </div>
+        </div>
+
+        <div class="mini-metrics">
+          <div class="mini-card">
+            <div class="title">Promedio técnico-operativo</div>
+            <div class="score" id="metricTecnico">0.00 / 5</div>
+          </div>
+          <div class="mini-card">
+            <div class="title">Promedio calidad y trazabilidad</div>
+            <div class="score" id="metricCalidad">0.00 / 5</div>
+          </div>
+          <div class="mini-card">
+            <div class="title">Promedio actitudinal</div>
+            <div class="score" id="metricActitud">0.00 / 5</div>
+          </div>
+        </div>
+
+        <div class="chart-wrapper">
+          <div class="chart-title">Gráfico resumen de competencias</div>
+          <canvas id="chartCanvas" width="1400" height="360"></canvas>
+        </div>
+
+        <div class="analysis-box">
+          <div class="analysis-title">Análisis automático</div>
+          <div id="analisisAutomatico">Completa las calificaciones para generar el análisis.</div>
+        </div>
+
+        <div class="analysis-box">
+          <div class="analysis-title">Recomendaciones automáticas</div>
+          <ul id="listaRecomendaciones" class="recommendations-list">
+            <li>Completa las calificaciones para obtener recomendaciones.</li>
+          </ul>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Firmas digitales</legend>
+        <div class="firmas-grid">
+          <div class="firma-card">
+            <label>Firma del jefe directo</label>
+            <canvas id="firmaJefe" class="firma-pad"></canvas>
+            <div class="firma-actions">
+              <span class="firma-note">Firma sobre el recuadro.</span>
+              <button type="button" class="btn-danger" data-clear-signature="firmaJefe">Limpiar firma</button>
+            </div>
+          </div>
+
+          <div class="firma-card">
+            <label>Firma del trabajador</label>
+            <canvas id="firmaTrabajador" class="firma-pad"></canvas>
+            <div class="firma-actions">
+              <span class="firma-note">Firma sobre el recuadro.</span>
+              <button type="button" class="btn-danger" data-clear-signature="firmaTrabajador">Limpiar firma</button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn-primary btn-full">Generar y descargar PDF</button>
+      <div class="footer-note">El PDF incluirá control documental, páginas, respuestas, gráfico, análisis, recomendaciones y firmas.</div>
+    </form>
+  </div>
+
+  <script>
+    const DOC_CODIGO_FIJO = "SG-RE-012";
+    const DOC_VERSION_FIJA = "2";
+    const DOC_FECHA_ACTUALIZACION_FIJA_ISO = "2026-04-08";
+
+    const competenciasBase = [
+      {
+        categoria: "Técnica",
+        nombre: "Interpretación de la orden de fabricación y requisitos del caso",
+        detalle: "Comprende instrucciones, identifica el caso correcto, revisa material, referencias, especificaciones y evita iniciar con información incompleta.",
+        critica: true
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Adosado del implante",
+        detalle: "Realiza el adosado con criterio anatómico, respetando ajuste, posición y requerimientos del diseño sin generar deformaciones.",
+        critica: true
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Encerado del implante",
+        detalle: "Mantiene espesores, volumen y forma conforme a la orden, sin excesos ni deficiencias que afecten el resultado final.",
+        critica: true
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Enmuflado, elaboración de molde y bebederos",
+        detalle: "Prepara correctamente el molde, define bebederos adecuados y previene defectos asociados al flujo del material.",
+        critica: true
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Inyección para PEEK o moldeo por compresión para PMMA",
+        detalle: "Comprende y ejecuta el proceso según aplique, respetando secuencia, tiempos, parámetros y cuidado del material.",
+        critica: true
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Desmolde, retiro y manejo postproceso",
+        detalle: "Retira la pieza sin inducir daño, reconoce defectos evidentes y conserva la integridad del implante.",
+        critica: true
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Pulido y brillado del implante",
+        detalle: "Obtiene acabado uniforme sin alterar dimensiones críticas ni comprometer la calidad del producto.",
+        critica: false
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Desinfección y acondicionamiento final",
+        detalle: "Aplica el procedimiento definido, evita contaminación cruzada y prepara el producto según el estado requerido.",
+        critica: true
+      },
+      {
+        categoria: "Técnica",
+        nombre: "Manejo de herramientas, equipos y área de trabajo",
+        detalle: "Usa herramientas y equipos de forma segura, verifica estado previo y mantiene condiciones adecuadas del área.",
+        critica: true
+      },
+      {
+        categoria: "Calidad y trazabilidad",
+        nombre: "Diligenciamiento de formatos y trazabilidad ISO 13485",
+        detalle: "Registra de manera completa, legible y oportuna lotes, actividades, parámetros, responsables y evidencias del proceso.",
+        critica: true
+      },
+      {
+        categoria: "Calidad y trazabilidad",
+        nombre: "Identificación del producto, materiales y estados de proceso",
+        detalle: "Reconoce y conserva identificación correcta del implante, biomodelos, lotes y estado del producto durante el flujo.",
+        critica: true
+      },
+      {
+        categoria: "Calidad y trazabilidad",
+        nombre: "Cumplimiento de instructivos, bioseguridad y control de contaminación",
+        detalle: "Sigue instructivos vigentes, normas internas, limpieza, desinfección y prácticas de control aplicables al proceso.",
+        critica: true
+      },
+      {
+        categoria: "Calidad y trazabilidad",
+        nombre: "Detección y reporte de desviaciones o no conformidades",
+        detalle: "Informa oportunamente errores, defectos, faltantes, riesgos o desviaciones sin ocultar información.",
+        critica: true
+      },
+      {
+        categoria: "Calidad y trazabilidad",
+        nombre: "Orden, limpieza y disposición segura de materiales",
+        detalle: "Mantiene el puesto organizado, evita mezcla de casos y cuida los insumos, equipos y documentos.",
+        critica: false
+      },
+      {
+        categoria: "Actitudinal",
+        nombre: "Puntualidad y asistencia",
+        detalle: "Cumple horarios, llega a tiempo y mantiene asistencia confiable acorde con las necesidades del proceso.",
+        critica: true
+      },
+      {
+        categoria: "Actitudinal",
+        nombre: "Respeto y relaciones interpersonales",
+        detalle: "Mantiene trato respetuoso, evita conflictos innecesarios y favorece un ambiente adecuado de trabajo.",
+        critica: true
+      },
+      {
+        categoria: "Actitudinal",
+        nombre: "Comunicación con jefes y compañeros",
+        detalle: "Transmite información clara, reporta novedades a tiempo y consulta cuando tiene dudas relevantes.",
+        critica: true
+      },
+      {
+        categoria: "Actitudinal",
+        nombre: "Trabajo en equipo y apoyo logístico",
+        detalle: "Colabora con otras áreas, apoya entregas internas y se integra al flujo general de fabricación y logística.",
+        critica: false
+      },
+      {
+        categoria: "Actitudinal",
+        nombre: "Responsabilidad, cuidado del material y sentido de pertenencia",
+        detalle: "Cuida implantes, biomodelos, herramientas y documentos, actuando con responsabilidad sobre recursos y tiempos.",
+        critica: true
+      },
+      {
+        categoria: "Actitudinal",
+        nombre: "Receptividad a la retroalimentación y disposición de aprendizaje",
+        detalle: "Acepta correcciones, implementa mejoras y evidencia interés real por aprender el proceso.",
+        critica: true
+      },
+      {
+        categoria: "Actitudinal",
+        nombre: "Compromiso con calidad, confidencialidad y cumplimiento",
+        detalle: "Actúa con disciplina, reserva sobre la información del caso y alineación con la cultura de calidad de la empresa.",
+        critica: true
+      }
+    ];
+
+    let logoBase64 = "";
+    let contadorCompetencias = 0;
+
+    const tbodyCompetencias = document.getElementById("tbodyCompetencias");
+    const chartCanvas = document.getElementById("chartCanvas");
+    const chartCtx = chartCanvas.getContext("2d");
+
+    function hoyISO() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function limpiarTexto(texto) {
+      return String(texto || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\w\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "_");
+    }
+
+    function formatearFechaVisual(fechaISO) {
+      if (!fechaISO) return "";
+      const partes = fechaISO.split("-");
+      if (partes.length !== 3) return fechaISO;
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    function escapeHTML(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function claseChip(categoria) {
+      if (categoria === "Técnica") return "chip-tecnica";
+      if (categoria === "Calidad y trazabilidad") return "chip-calidad";
+      return "chip-actitud";
+    }
+
+    function crearFilaCompetencia({ categoria = "Técnica", nombre = "", detalle = "", critica = false } = {}) {
+      contadorCompetencias += 1;
+      const tr = document.createElement("tr");
+      tr.className = "competencia-row";
+      tr.dataset.critica = critica ? "1" : "0";
+
+      tr.innerHTML = `
+        <td class="cell-index">${contadorCompetencias}</td>
+        <td>
+          <select class="input-categoria">
+            <option value="Técnica" ${categoria === "Técnica" ? "selected" : ""}>Técnica</option>
+            <option value="Calidad y trazabilidad" ${categoria === "Calidad y trazabilidad" ? "selected" : ""}>Calidad y trazabilidad</option>
+            <option value="Actitudinal" ${categoria === "Actitudinal" ? "selected" : ""}>Actitudinal</option>
+          </select>
+        </td>
+        <td>
+          <div class="chip ${claseChip(categoria)}">${escapeHTML(categoria)}</div>
+          <input type="text" class="input-nombre-competencia" value="${escapeHTML(nombre)}" placeholder="Nombre de la competencia" required />
+          <div class="competencia-detalle">
+            <textarea class="input-detalle-competencia" placeholder="Describe el criterio de evaluación">${escapeHTML(detalle)}</textarea>
+          </div>
+          ${critica ? '<span class="badge-critical">Competencia crítica</span>' : ''}
+        </td>
+        <td>
+          <select class="input-calificacion" required>
+            <option value="">Selecciona</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </td>
+        <td>
+          <textarea class="input-observacion" placeholder="Comentarios del jefe sobre esta competencia"></textarea>
+        </td>
+        <td>
+          <button type="button" class="btn-danger btn-eliminar-row">Eliminar</button>
+        </td>
+      `;
+
+      tr.querySelectorAll("input, textarea, select").forEach(el => {
+        el.addEventListener("input", () => {
+          actualizarChipCategoria(tr);
+          actualizarResumenAutomatico();
+        });
+        el.addEventListener("change", () => {
+          actualizarChipCategoria(tr);
+          actualizarResumenAutomatico();
+        });
+      });
+
+      tr.querySelector(".btn-eliminar-row").addEventListener("click", () => {
+        tr.remove();
+        renumerarCompetencias();
+        actualizarResumenAutomatico();
+      });
+
+      tbodyCompetencias.appendChild(tr);
+      actualizarChipCategoria(tr);
+    }
+
+    function actualizarChipCategoria(tr) {
+      const select = tr.querySelector(".input-categoria");
+      const chip = tr.querySelector(".chip");
+      const categoria = select.value;
+      chip.textContent = categoria;
+      chip.className = `chip ${claseChip(categoria)}`;
+    }
+
+    function renumerarCompetencias() {
+      contadorCompetencias = 0;
+      document.querySelectorAll(".competencia-row").forEach((row, index) => {
+        contadorCompetencias = index + 1;
+        row.querySelector(".cell-index").textContent = contadorCompetencias;
+      });
+    }
+
+    function obtenerCompetencias() {
+      return Array.from(document.querySelectorAll(".competencia-row")).map((row, index) => ({
+        index: index + 1,
+        categoria: row.querySelector(".input-categoria").value,
+        nombre: row.querySelector(".input-nombre-competencia").value.trim(),
+        detalle: row.querySelector(".input-detalle-competencia").value.trim(),
+        calificacion: Number(row.querySelector(".input-calificacion").value || 0),
+        observacion: row.querySelector(".input-observacion").value.trim(),
+        critica: row.dataset.critica === "1"
+      }));
+    }
+
+    function promedioCategoria(competencias, categoria) {
+      const items = competencias.filter(c => c.categoria === categoria && c.calificacion > 0);
+      if (!items.length) return 0;
+      return items.reduce((acc, item) => acc + item.calificacion, 0) / items.length;
+    }
+
+    function deduplicar(arr) {
+      return [...new Set(arr.filter(Boolean))];
+    }
+
+    function obtenerResultado(competencias) {
+      const calificadas = competencias.filter(c => c.calificacion > 0);
+      const total = calificadas.length;
+      const suma = calificadas.reduce((acc, item) => acc + item.calificacion, 0);
+      const promedio = total ? suma / total : 0;
+      const porcentaje = total ? (promedio / 5) * 100 : 0;
+
+      const bajas = calificadas.filter(c => c.calificacion < 3);
+      const medias = calificadas.filter(c => c.calificacion === 3);
+      const criticasBajas = calificadas.filter(c => c.critica && c.calificacion <= 2);
+      const criticasMedias = calificadas.filter(c => c.critica && c.calificacion === 3);
+
+      const promedioTecnico = promedioCategoria(calificadas, "Técnica");
+      const promedioCalidad = promedioCategoria(calificadas, "Calidad y trazabilidad");
+      const promedioActitud = promedioCategoria(calificadas, "Actitudinal");
+
+      let nivel = "Pendiente";
+      let analisis = "Completa las calificaciones para generar el análisis.";
+      let sugerencia = "Pendiente";
+      const recomendaciones = [];
+
+      if (!total) {
+        recomendaciones.push("Completa todas las calificaciones para obtener recomendaciones automáticas.");
+      } else {
+        const problemasActitudCriticos = calificadas.filter(c =>
+          c.categoria === "Actitudinal" &&
+          ["Puntualidad y asistencia", "Respeto y relaciones interpersonales", "Comunicación con jefes y compañeros"].includes(c.nombre) &&
+          c.calificacion <= 2
+        );
+
+        const trazabilidadCritica = calificadas.find(c =>
+          c.nombre.toLowerCase().includes("trazabilidad") && c.calificacion <= 2
+        );
+
+        if (promedio >= 4.3 && criticasBajas.length === 0 && bajas.length === 0) {
+          nivel = "Sobresaliente";
+          sugerencia = "Aprobar continuidad";
+          analisis = "El colaborador evidencia dominio sólido de las competencias técnicas, documentales y actitudinales. Puede desempeñarse con autonomía, mantiene control del proceso y se alinea con la disciplina requerida para un entorno regulado y trazable.";
+          recomendaciones.push("Mantener al colaborador en el cargo y ampliar gradualmente la complejidad de sus responsabilidades.");
+          recomendaciones.push("Usar sus fortalezas para apoyar estandarización interna y entrenamiento práctico, cuando aplique.");
+        } else if (promedio >= 3.8 && criticasBajas.length === 0 && problemasActitudCriticos.length === 0 && !trazabilidadCritica) {
+          nivel = "Satisfactorio";
+          sugerencia = "Aprobar continuidad";
+          analisis = "El resultado general es favorable. El colaborador demuestra apropiación suficiente del cargo y no presenta alertas críticas que impidan su continuidad, aunque existen oportunidades puntuales para fortalecer consistencia y autonomía.";
+          recomendaciones.push("Definir refuerzos puntuales en competencias calificadas en 3.");
+          recomendaciones.push("Verificar estabilidad del desempeño mediante seguimiento corto durante el siguiente mes.");
+        } else if (promedio >= 3.2 && criticasBajas.length <= 2 && problemasActitudCriticos.length === 0) {
+          nivel = "Aceptable con mejora";
+          sugerencia = "Aprobar continuidad con plan de mejora";
+          analisis = "El colaborador muestra potencial de continuidad, pero todavía tiene brechas relevantes en competencias del proceso. La continuidad es razonable únicamente con reentrenamiento documentado, responsables definidos y una nueva verificación formal.";
+          recomendaciones.push("Implementar plan de mejora con entrenamiento práctico supervisado y fecha de reevaluación.");
+          recomendaciones.push("Registrar evidencia de reentrenamiento y verificación de competencia para actividades críticas.");
+        } else {
+          nivel = "Insuficiente";
+          sugerencia = "Ampliar seguimiento o no aprobar continuidad";
+          analisis = "Se identifican brechas importantes en competencias críticas del proceso, trazabilidad o conducta laboral. Con este resultado no se evidencia aún el nivel de consistencia y confiabilidad esperado para sostener el cargo sin un riesgo elevado para el proceso o el clima laboral.";
+          recomendaciones.push("Revisar con prioridad la conveniencia de la continuidad del colaborador en el cargo.");
+          recomendaciones.push("Si se decide continuidad temporal, debe ser bajo seguimiento estrecho y con plan de acción inmediato.");
+        }
+
+        bajas.forEach(item => {
+          if (item.calificacion <= 2) {
+            recomendaciones.push(`Prioridad alta: reforzar ${item.nombre.toLowerCase()} mediante entrenamiento práctico supervisado y verificación objetiva.`);
+          } else if (item.calificacion === 3) {
+            recomendaciones.push(`Consolidar ${item.nombre.toLowerCase()} con práctica guiada y revisión de resultados en corto plazo.`);
+          }
+        });
+
+        medias.forEach(item => {
+          if (item.categoria === "Actitudinal") {
+            recomendaciones.push(`Acompañar ${item.nombre.toLowerCase()} con retroalimentación directa y expectativas claras de conducta.`);
+          }
+        });
+
+        if (trazabilidadCritica || promedioCalidad < 3.5) {
+          recomendaciones.push("No liberar al colaborador a tareas documentales críticas sin seguimiento hasta estabilizar trazabilidad y cumplimiento de formatos.");
+        }
+
+        if (promedioTecnico < 3.5) {
+          recomendaciones.push("Reforzar estandarización del proceso técnico con checklist de verificación por etapa.");
+        }
+
+        if (promedioActitud < 3.5) {
+          recomendaciones.push("Hacer seguimiento al comportamiento laboral, puntualidad, respeto y comunicación como criterio de continuidad.");
+        }
+
+        if (criticasMedias.length > 0) {
+          recomendaciones.push("Monitorear de cerca las competencias críticas calificadas en 3 para evitar desviaciones o reprocesos.");
+        }
+      }
+
+      return {
+        promedio,
+        porcentaje,
+        bajas,
+        nivel,
+        analisis,
+        sugerencia,
+        promedioTecnico,
+        promedioCalidad,
+        promedioActitud,
+        recomendaciones: deduplicar(recomendaciones)
+      };
+    }
+
+    function acortarTexto(texto, max) {
+      const str = String(texto || "");
+      return str.length <= max ? str : `${str.slice(0, max - 1)}…`;
+    }
+
+    function dibujarGrafico(competencias) {
+      const ctx = chartCtx;
+      const canvas = chartCanvas;
+      const width = canvas.width;
+      const height = canvas.height;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, width, height);
+
+      const margin = { top: 26, right: 20, bottom: 128, left: 60 };
+      const chartWidth = width - margin.left - margin.right;
+      const chartHeight = height - margin.top - margin.bottom;
+      const baseY = margin.top + chartHeight;
+
+      ctx.strokeStyle = "#dce5ef";
+      ctx.lineWidth = 1;
+      ctx.font = "14px Segoe UI";
+      ctx.fillStyle = "#5b6b7a";
+
+      for (let i = 0; i <= 5; i++) {
+        const y = baseY - (i / 5) * chartHeight;
+        ctx.beginPath();
+        ctx.moveTo(margin.left, y);
+        ctx.lineTo(width - margin.right, y);
+        ctx.stroke();
+        ctx.fillText(String(i), margin.left - 22, y + 5);
+      }
+
+      ctx.strokeStyle = "#35546f";
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, margin.top);
+      ctx.lineTo(margin.left, baseY);
+      ctx.lineTo(width - margin.right, baseY);
+      ctx.stroke();
+
+      if (!competencias.length) return;
+
+      const barSpace = chartWidth / competencias.length;
+      const barWidth = Math.min(54, barSpace * 0.54);
+
+      competencias.forEach((item, index) => {
+        const x = margin.left + index * barSpace + (barSpace - barWidth) / 2;
+        const value = Number(item.calificacion || 0);
+        const barHeight = (value / 5) * chartHeight;
+        const y = baseY - barHeight;
+
+        let color = "#cad5e2";
+        if (item.categoria === "Técnica") color = value > 0 ? "#004481" : "#cad5e2";
+        if (item.categoria === "Calidad y trazabilidad") color = value > 0 ? "#1f8f4d" : "#cad5e2";
+        if (item.categoria === "Actitudinal") color = value > 0 ? "#8b49a0" : "#cad5e2";
+
+        if (value > 0 && value < 3) color = "#c0392b";
+        if (value === 3) color = "#d68b00";
+
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        ctx.fillStyle = "#17324d";
+        ctx.font = "bold 14px Segoe UI";
+        ctx.fillText(value ? String(value) : "-", x + barWidth / 2 - 5, y - 8);
+
+        ctx.save();
+        ctx.translate(x + barWidth / 2, baseY + 14);
+        ctx.rotate(-Math.PI / 5.2);
+        ctx.font = "12px Segoe UI";
+        ctx.fillStyle = "#425466";
+        ctx.fillText(acortarTexto(item.nombre, 28), 0, 0);
+        ctx.restore();
+      });
+
+      ctx.fillStyle = "#425466";
+      ctx.font = "12px Segoe UI";
+      ctx.fillText("Azul: Técnica | Verde: Calidad y trazabilidad | Morado: Actitudinal | Rojo/amarillo: alerta por calificación", margin.left, height - 16);
+    }
+
+    function actualizarResumenAutomatico() {
+      const competencias = obtenerCompetencias();
+      const resultado = obtenerResultado(competencias);
+
+      document.getElementById("metricPromedio").textContent = `${resultado.promedio.toFixed(2)} / 5`;
+      document.getElementById("metricPorcentaje").textContent = `${resultado.porcentaje.toFixed(0)}%`;
+      document.getElementById("metricNivel").textContent = resultado.nivel;
+      document.getElementById("metricBajas").textContent = String(resultado.bajas.length);
+      document.getElementById("metricTecnico").textContent = `${resultado.promedioTecnico.toFixed(2)} / 5`;
+      document.getElementById("metricCalidad").textContent = `${resultado.promedioCalidad.toFixed(2)} / 5`;
+      document.getElementById("metricActitud").textContent = `${resultado.promedioActitud.toFixed(2)} / 5`;
+
+      document.getElementById("analisisAutomatico").textContent =
+        `${resultado.analisis} Sugerencia automática: ${resultado.sugerencia}.`;
+
+      const ul = document.getElementById("listaRecomendaciones");
+      ul.innerHTML = "";
+      resultado.recomendaciones.forEach(texto => {
+        const li = document.createElement("li");
+        li.textContent = texto;
+        ul.appendChild(li);
+      });
+
+      dibujarGrafico(competencias);
+    }
+
+    function setupSignaturePad(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      let drawing = false;
+
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#0f2740";
+
+      function getPos(evt) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = evt.touches?.[0]?.clientX ?? evt.clientX;
+        const clientY = evt.touches?.[0]?.clientY ?? evt.clientY;
+        return {
+          x: ((clientX - rect.left) / rect.width) * canvas.width,
+          y: ((clientY - rect.top) / rect.height) * canvas.height
+        };
+      }
+
+      function start(evt) {
+        evt.preventDefault();
+        drawing = true;
+        const pos = getPos(evt);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+      }
+
+      function move(evt) {
+        if (!drawing) return;
+        evt.preventDefault();
+        const pos = getPos(evt);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+      }
+
+      function stop() {
+        drawing = false;
+      }
+
+      canvas.addEventListener("mousedown", start);
+      canvas.addEventListener("mousemove", move);
+      canvas.addEventListener("mouseup", stop);
+      canvas.addEventListener("mouseleave", stop);
+
+      canvas.addEventListener("touchstart", start, { passive: false });
+      canvas.addEventListener("touchmove", move, { passive: false });
+      canvas.addEventListener("touchend", stop);
+
+      return { canvas, ctx };
+    }
+
+    function canvasVacio(canvas) {
+      const ctx = canvas.getContext("2d");
+      const image = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      for (let i = 3; i < image.length; i += 4) {
+        if (image[i] !== 0) return false;
+      }
+      return true;
+    }
+
+    async function cargarLogoBase64DesdeRuta(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function () {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+          } catch (error) {
+            resolve("");
+          }
+        };
+        img.onerror = function () { resolve(""); };
+        img.src = `${url}?v=${Date.now()}`;
+      });
+    }
+
+    async function intentarCargaAutomaticaLogo() {
+      const logoAuto = await cargarLogoBase64DesdeRuta("./logo.png.jpg");
+      if (logoAuto) {
+        logoBase64 = logoAuto;
+        const img = document.getElementById("logoPreview");
+        img.src = logoAuto;
+        img.style.display = "block";
+        document.getElementById("logoPlaceholder").style.display = "none";
+      }
+    }
+
+    function manejarLogo(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        logoBase64 = e.target.result;
+        const img = document.getElementById("logoPreview");
+        img.src = logoBase64;
+        img.style.display = "block";
+        document.getElementById("logoPlaceholder").style.display = "none";
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function agregarTextoMultilinea(doc, texto, x, y, maxWidth, lineHeight = 5.2) {
+      const lines = doc.splitTextToSize(texto || "", maxWidth);
+      doc.text(lines, x, y);
+      return y + lines.length * lineHeight;
+    }
+
+    function validarFormulario() {
+      const competencias = obtenerCompetencias();
+
+      if (!competencias.length) {
+        alert("Debes registrar al menos una competencia para evaluar.");
+        return false;
+      }
+
+      const faltantes = competencias.filter(c => !c.nombre || !c.calificacion);
+      if (faltantes.length > 0) {
+        alert("Debes completar el nombre y la calificación de todas las competencias.");
+        return false;
+      }
+
+      if (canvasVacio(firmaJefePad.canvas) || canvasVacio(firmaTrabajadorPad.canvas)) {
+        alert("Debes capturar las dos firmas antes de generar el PDF.");
+        return false;
+      }
+
+      return true;
+    }
+
+    function dibujarHeader(doc, logo, dataDoc) {
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.4);
+      doc.rect(10, 10, 190, 24);
+      doc.line(55, 10, 55, 34);
+      doc.line(145, 10, 145, 34);
+      doc.line(183, 10, 183, 34);
+      doc.line(145, 18, 200, 18);
+      doc.line(145, 26, 200, 26);
+
+      if (logo) {
+        try {
+          doc.addImage(logo, "PNG", 13, 13, 38, 18);
+        } catch (error) {
+          console.warn("No fue posible insertar el logo en el PDF.", error);
+        }
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.3);
+      doc.setTextColor(0, 0, 0);
+      doc.text("EVALUACIÓN DE COMPETENCIAS", 100, 20, { align: "center" });
+      doc.text("DURANTE PERIODO DE PRUEBA", 100, 26, { align: "center" });
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.8);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Fecha de actualización", 164, 15, { align: "center" });
+      doc.text("Código", 164, 23, { align: "center" });
+      doc.text("Versión", 164, 31, { align: "center" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+      doc.text(formatearFechaVisual(dataDoc.fechaActualizacion) || "", 191.5, 15, { align: "center" });
+      doc.text(dataDoc.codigoDocumento || "", 191.5, 23, { align: "center" });
+      doc.text(dataDoc.versionDocumento || "", 191.5, 31, { align: "center" });
+    }
+
+    function dibujarFooter(doc, dataDoc, page, totalPages) {
+      doc.setDrawColor(150, 150, 150);
+      doc.line(10, 282, 200, 282);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7);
+      doc.setTextColor(90, 90, 90);
+
+      const linea1 = `Copia controlada: ${dataDoc.copiaControlada || "Sí"} | Proceso: ${dataDoc.proceso || ""}`;
+      const linea2 = `Elaborado por: ${dataDoc.elaboradoPor || ""} | Revisado por: ${dataDoc.revisadoPor || ""} | Aprobado por: ${dataDoc.aprobadoPor || ""}`;
+
+      doc.text(linea1, 10, 287);
+      doc.text(linea2, 10, 291);
+      doc.text(`Página ${page} de ${totalPages}`, 195, 291, { align: "right" });
+
+      doc.setTextColor(0, 0, 0);
+    }
+
+    function agregarTablaSiCabe(doc, startY, body, head, headColor, dataDoc, title) {
+      if (startY > 245) {
+        doc.addPage();
+        dibujarHeader(doc, logoBase64, dataDoc);
+        startY = 42;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.2);
+      doc.setTextColor(0, 68, 129);
+      doc.text(title, 10, startY);
+      doc.autoTable({
+        startY: startY + 4,
+        head: [head],
+        body,
+        theme: "grid",
+        headStyles: {
+          fillColor: headColor,
+          textColor: 255,
+          fontStyle: "bold",
+          fontSize: 8.1,
+          halign: "center"
+        },
+        styles: {
+          fontSize: 8,
+          cellPadding: 2.3,
+          lineColor: [170, 180, 190],
+          lineWidth: 0.2,
+          overflow: "linebreak",
+          valign: "middle"
+        },
+        alternateRowStyles: {
+          fillColor: [247, 250, 252]
+        },
+        margin: { left: 10, right: 10, bottom: 24 },
+        didDrawPage: () => dibujarHeader(doc, logoBase64, dataDoc)
+      });
+      return doc.lastAutoTable.finalY + 8;
+    }
+
+    document.getElementById("btnAgregarCompetencia").addEventListener("click", () => {
+      crearFilaCompetencia({
+        categoria: "Técnica",
+        nombre: "Nueva competencia",
+        detalle: "Describe aquí el criterio de evaluación.",
+        critica: false
+      });
+      actualizarResumenAutomatico();
+    });
+
+    document.getElementById("logoInput").addEventListener("change", e => {
+      manejarLogo(e.target.files?.[0]);
+    });
+
+    const firmaJefePad = setupSignaturePad("firmaJefe");
+    const firmaTrabajadorPad = setupSignaturePad("firmaTrabajador");
+
+    document.querySelectorAll("[data-clear-signature]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-clear-signature");
+        const canvas = document.getElementById(target);
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+    });
+
+    document.getElementById("codigoDocumento").value = DOC_CODIGO_FIJO;
+    document.getElementById("versionDocumento").value = DOC_VERSION_FIJA;
+    document.getElementById("fechaActualizacion").value = "08/04/2026";
+    document.getElementById("fechaEvaluacion").value = hoyISO();
+
+    competenciasBase.forEach(crearFilaCompetencia);
+
+    [
+      "fortalezas",
+      "aspectosMejorar",
+      "comentariosFinales",
+      "planAccionManual",
+      "nombreTrabajador",
+      "nombreJefe",
+      "decisionJefe",
+      "proximaRevision"
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", actualizarResumenAutomatico);
+        el.addEventListener("change", actualizarResumenAutomatico);
+      }
+    });
+
+    document.getElementById("formEvaluacion").addEventListener("submit", function(evt) {
+      evt.preventDefault();
+
+      if (!validarFormulario()) return;
+
+      const competencias = obtenerCompetencias();
+      const resultado = obtenerResultado(competencias);
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF("p", "mm", "a4");
+
+      const dataDoc = {
+        empresa: document.getElementById("empresa").value.trim(),
+        proceso: document.getElementById("proceso").value.trim(),
+        codigoDocumento: DOC_CODIGO_FIJO,
+        versionDocumento: DOC_VERSION_FIJA,
+        fechaActualizacion: DOC_FECHA_ACTUALIZACION_FIJA_ISO,
+        copiaControlada: document.getElementById("copiaControlada").value,
+        elaboradoPor: document.getElementById("elaboradoPor").value.trim(),
+        revisadoPor: document.getElementById("revisadoPor").value.trim(),
+        aprobadoPor: document.getElementById("aprobadoPor").value.trim(),
+        fechaEvaluacion: document.getElementById("fechaEvaluacion").value,
+        fechaIngreso: document.getElementById("fechaIngreso").value,
+        periodoEvaluado: document.getElementById("periodoEvaluado").value.trim(),
+        tipoEvaluacion: document.getElementById("tipoEvaluacion").value.trim(),
+        nombreTrabajador: document.getElementById("nombreTrabajador").value.trim(),
+        documentoTrabajador: document.getElementById("documentoTrabajador").value.trim(),
+        cargoTrabajador: document.getElementById("cargoTrabajador").value.trim(),
+        areaTrabajador: document.getElementById("areaTrabajador").value.trim(),
+        nombreJefe: document.getElementById("nombreJefe").value.trim(),
+        cargoJefe: document.getElementById("cargoJefe").value.trim(),
+        decisionJefe: document.getElementById("decisionJefe").value.trim(),
+        proximaRevision: document.getElementById("proximaRevision").value.trim(),
+        objetivoEvaluacion: document.getElementById("objetivoEvaluacion").value.trim(),
+        fortalezas: document.getElementById("fortalezas").value.trim(),
+        aspectosMejorar: document.getElementById("aspectosMejorar").value.trim(),
+        comentariosFinales: document.getElementById("comentariosFinales").value.trim(),
+        planAccionManual: document.getElementById("planAccionManual").value.trim()
+      };
+
+      dibujarHeader(doc, logoBase64, dataDoc);
+
+      const filasInfo = [
+        [
+          { content: "Fecha de evaluación", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          formatearFechaVisual(dataDoc.fechaEvaluacion),
+          { content: "Fecha de ingreso", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          formatearFechaVisual(dataDoc.fechaIngreso)
+        ],
+        [
+          { content: "Periodo evaluado", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.periodoEvaluado,
+          { content: "Tipo de evaluación", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.tipoEvaluacion
+        ],
+        [
+          { content: "Trabajador", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.nombreTrabajador,
+          { content: "Documento", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.documentoTrabajador
+        ],
+        [
+          { content: "Cargo", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.cargoTrabajador,
+          { content: "Área", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.areaTrabajador
+        ],
+        [
+          { content: "Jefe directo", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.nombreJefe,
+          { content: "Cargo del jefe", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.cargoJefe
+        ],
+        [
+          { content: "Concepto evaluador", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.decisionJefe || resultado.sugerencia,
+          { content: "Próxima revisión", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          dataDoc.proximaRevision || "Pendiente"
+        ],
+        [
+          { content: "Objetivo", styles: { fontStyle: "bold", fillColor: [230, 239, 247] } },
+          { content: dataDoc.objetivoEvaluacion, colSpan: 3 },
+          "",
+          ""
+        ]
+      ];
+
+      doc.autoTable({
+        startY: 40,
+        body: filasInfo,
+        theme: "grid",
+        styles: {
+          fontSize: 8.2,
+          cellPadding: 2.5,
+          lineColor: [170, 180, 190],
+          lineWidth: 0.2,
+          overflow: "linebreak",
+          valign: "middle"
+        },
+        columnStyles: {
+          0: { cellWidth: 35 },
+          1: { cellWidth: 60 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 60 }
+        },
+        margin: { left: 10, right: 10 },
+        didDrawPage: () => dibujarHeader(doc, logoBase64, dataDoc)
+      });
+
+      const tecnicas = competencias.filter(c => c.categoria === "Técnica").map(item => [
+        String(item.index), item.nombre, String(item.calificacion), item.observacion || "Sin observaciones"
+      ]);
+      const calidad = competencias.filter(c => c.categoria === "Calidad y trazabilidad").map(item => [
+        String(item.index), item.nombre, String(item.calificacion), item.observacion || "Sin observaciones"
+      ]);
+      const actitudinales = competencias.filter(c => c.categoria === "Actitudinal").map(item => [
+        String(item.index), item.nombre, String(item.calificacion), item.observacion || "Sin observaciones"
+      ]);
+
+      let y = doc.lastAutoTable.finalY + 8;
+
+      if (tecnicas.length) {
+        y = agregarTablaSiCabe(
+          doc, y, tecnicas,
+          ["#", "Competencia técnica / operativa", "Calificación", "Observaciones"],
+          [0, 68, 129], dataDoc, "1. Resultado técnico-operativo"
+        );
+      }
+
+      if (calidad.length) {
+        y = agregarTablaSiCabe(
+          doc, y, calidad,
+          ["#", "Competencia de calidad y trazabilidad", "Calificación", "Observaciones"],
+          [31, 143, 77], dataDoc, "2. Resultado de calidad y trazabilidad"
+        );
+      }
+
+      if (actitudinales.length) {
+        y = agregarTablaSiCabe(
+          doc, y, actitudinales,
+          ["#", "Competencia actitudinal", "Calificación", "Observaciones"],
+          [139, 73, 160], dataDoc, "3. Resultado actitudinal y de contratación"
+        );
+      }
+
+      if (y + 45 > 260) {
+        doc.addPage();
+        dibujarHeader(doc, logoBase64, dataDoc);
+        y = 42;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.2);
+      doc.setTextColor(0, 68, 129);
+      doc.text("4. Resumen cuantitativo", 10, y);
+
+      doc.autoTable({
+        startY: y + 4,
+        body: [
+          ["Promedio general", `${resultado.promedio.toFixed(2)} / 5`],
+          ["Promedio técnico-operativo", `${resultado.promedioTecnico.toFixed(2)} / 5`],
+          ["Promedio calidad y trazabilidad", `${resultado.promedioCalidad.toFixed(2)} / 5`],
+          ["Promedio actitudinal", `${resultado.promedioActitud.toFixed(2)} / 5`],
+          ["Porcentaje de cumplimiento", `${resultado.porcentaje.toFixed(0)} %`],
+          ["Nivel de resultado", resultado.nivel],
+          ["Competencias con nota < 3", String(resultado.bajas.length)],
+          ["Sugerencia automática", resultado.sugerencia]
+        ],
+        theme: "grid",
+        styles: {
+          fontSize: 8.4,
+          cellPadding: 2.5,
+          lineColor: [170, 180, 190],
+          lineWidth: 0.2
+        },
+        columnStyles: {
+          0: { cellWidth: 70, fontStyle: "bold", fillColor: [230, 239, 247] },
+          1: { cellWidth: 120 }
+        },
+        margin: { left: 10, right: 10 },
+        didDrawPage: () => dibujarHeader(doc, logoBase64, dataDoc)
+      });
+
+      y = doc.lastAutoTable.finalY + 8;
+
+      if (y + 88 > 260) {
+        doc.addPage();
+        dibujarHeader(doc, logoBase64, dataDoc);
+        y = 42;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.2);
+      doc.setTextColor(0, 68, 129);
+      doc.text("5. Gráfico resumen", 10, y);
+      doc.addImage(chartCanvas.toDataURL("image/png"), "PNG", 10, y + 4, 190, 70);
+      y += 80;
+
+      if (y + 58 > 270) {
+        doc.addPage();
+        dibujarHeader(doc, logoBase64, dataDoc);
+        y = 42;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.2);
+      doc.setTextColor(0, 68, 129);
+      doc.text("6. Análisis automático", 10, y);
+      y += 6;
+
+      doc.setTextColor(45, 45, 45);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      y = agregarTextoMultilinea(doc, `${resultado.analisis} Sugerencia automática: ${resultado.sugerencia}.`, 10, y, 190);
+      y += 3;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.2);
+      doc.setTextColor(0, 68, 129);
+      doc.text("7. Recomendaciones automáticas", 10, y);
+      y += 6;
+
+      doc.setTextColor(45, 45, 45);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+
+      resultado.recomendaciones.forEach(rec => {
+        if (y > 272) {
+          doc.addPage();
+          dibujarHeader(doc, logoBase64, dataDoc);
+          y = 42;
+        }
+        const texto = `• ${rec}`;
+        const lines = doc.splitTextToSize(texto, 186);
+        doc.text(lines, 12, y);
+        y += lines.length * 5.1;
+      });
+
+      y += 2;
+      if (y > 238) {
+        doc.addPage();
+        dibujarHeader(doc, logoBase64, dataDoc);
+        y = 42;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.2);
+      doc.setTextColor(0, 68, 129);
+      doc.text("8. Concepto del jefe y plan de acción", 10, y);
+
+      doc.autoTable({
+        startY: y + 4,
+        body: [
+          ["Fortalezas observadas", dataDoc.fortalezas || "Sin registrar"],
+          ["Aspectos por mejorar", dataDoc.aspectosMejorar || "Sin registrar"],
+          ["Concepto final del jefe", dataDoc.decisionJefe || "Sin registrar"],
+          ["Comentarios finales", dataDoc.comentariosFinales || "Sin registrar"],
+          ["Plan de acción complementario", dataDoc.planAccionManual || "Sin registrar"]
+        ],
+        theme: "grid",
+        styles: {
+          fontSize: 8.4,
+          cellPadding: 2.5,
+          lineColor: [170, 180, 190],
+          lineWidth: 0.2,
+          overflow: "linebreak"
+        },
+        columnStyles: {
+          0: { cellWidth: 58, fontStyle: "bold", fillColor: [230, 239, 247] },
+          1: { cellWidth: 132 }
+        },
+        margin: { left: 10, right: 10 },
+        didDrawPage: () => dibujarHeader(doc, logoBase64, dataDoc)
+      });
+
+      y = doc.lastAutoTable.finalY + 12;
+      if (y + 46 > 272) {
+        doc.addPage();
+        dibujarHeader(doc, logoBase64, dataDoc);
+        y = 62;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10.2);
+      doc.setTextColor(0, 68, 129);
+      doc.text("9. Firmas", 10, y);
+      y += 5;
+
+      doc.addImage(firmaJefePad.canvas.toDataURL("image/png"), "PNG", 18, y, 70, 24);
+      doc.addImage(firmaTrabajadorPad.canvas.toDataURL("image/png"), "PNG", 118, y, 70, 24);
+      y += 30;
+
+      doc.setDrawColor(60, 60, 60);
+      doc.line(18, y, 88, y);
+      doc.line(118, y, 188, y);
+      y += 5;
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.text(dataDoc.nombreJefe || "Nombre del jefe directo", 53, y, { align: "center" });
+      doc.text(dataDoc.nombreTrabajador || "Nombre del trabajador", 153, y, { align: "center" });
+      y += 5;
+
+      doc.setFont("helvetica", "normal");
+      doc.text(dataDoc.cargoJefe || "Jefe directo", 53, y, { align: "center" });
+      doc.text("Trabajador", 153, y, { align: "center" });
+
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        dibujarFooter(doc, dataDoc, i, totalPages);
+      }
+
+      const fechaArchivo = dataDoc.fechaEvaluacion || hoyISO();
+      const trabajadorArchivo = limpiarTexto(dataDoc.nombreTrabajador || "Trabajador");
+      const nombreArchivo = `${dataDoc.codigoDocumento}_V${dataDoc.versionDocumento}_${fechaArchivo}_${trabajadorArchivo}_Evaluacion_Competencias_Periodo_Prueba.pdf`;
+      doc.save(nombreArchivo);
+      setTimeout(() => {
+        alert("Gracias por llenar este formato. El PDF descargado por favor envíalo a Meraki.solucionesalamedida@gmail.com.");
+      }, 250);
+    });
+
+    intentarCargaAutomaticaLogo();
+    actualizarResumenAutomatico();
+  </script>
+</body>
+</html>
